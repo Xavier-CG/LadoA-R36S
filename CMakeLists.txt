@@ -12,6 +12,7 @@ pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
 add_executable(ladoa
     src/main.cpp
     src/ui/CoverFlow.cpp
+    src/debug/FPSCounter.cpp
 )
 
 target_link_libraries(ladoa PRIVATE PkgConfig::SDL2)

@@ -4,116 +4,118 @@
 #include <algorithm>
 
 #include "ui/CoverFlow.h"
+#include "debug/FPSCounter.h"
 
-int main()
-{
+int main() {
 
-    // Inicializar SDL2
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
-    {
+    // 1. Inicializar SDL2
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cerr << "Error SDL: " << SDL_GetError() << '\n';
         return 1;
     }
 
-    // Crear ventana
-    SDL_Window *ventana = SDL_CreateWindow(
+    // 2. Crear ventana
+    SDL_Window* ventana = SDL_CreateWindow(
         "Lado A",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         640, 480,
-        SDL_WINDOW_SHOWN);
+        SDL_WINDOW_SHOWN
+    );
 
-    if (!ventana)
-    {
+    if (!ventana) {
         std::cerr << SDL_GetError() << '\n';
         SDL_Quit();
         return 1;
     }
 
-    // Crear renderizador
-    SDL_Renderer *renderer = SDL_CreateRenderer(
-        ventana, -1, SDL_RENDERER_ACCELERATED);
+    // 3. Crear renderizador
+    SDL_Renderer* renderer = SDL_CreateRenderer(
+        ventana, -1, SDL_RENDERER_ACCELERATED
+    );
 
-    if (!renderer)
-    {
+    if (!renderer) {
         renderer = SDL_CreateRenderer(
-            ventana, -1, SDL_RENDERER_SOFTWARE);
+            ventana, -1, SDL_RENDERER_SOFTWARE
+        );
     }
 
-    if (!renderer)
-    {
+    if (!renderer) {
         std::cerr << SDL_GetError() << '\n';
         SDL_DestroyWindow(ventana);
         SDL_Quit();
         return 1;
     }
 
-    // Crear nuestro carrusel
+    // 4. Crear componentes
     CoverFlow coverFlow;
+    FPSCounter contadorFPS;
 
     bool ejecutando = true;
+
+    // Tiempo inicial para calcular deltaTime
     Uint64 tiempoAnterior = SDL_GetPerformanceCounter();
 
-    while (ejecutando)
-    {
+    // 5. Bucle principal
+    while (ejecutando) {
 
         Uint64 tiempoActual = SDL_GetPerformanceCounter();
 
         float deltaTime = static_cast<float>(
-                              tiempoActual - tiempoAnterior) /
-                          static_cast<float>(SDL_GetPerformanceFrequency());
+            tiempoActual - tiempoAnterior
+        ) / static_cast<float>(SDL_GetPerformanceFrequency());
 
         tiempoAnterior = tiempoActual;
 
-        // Limitar saltos grandes al volver de una pausa
-        deltaTime = std::min(deltaTime, 0.05f);
+        // FPS reales
+        contadorFPS.actualizar(deltaTime);
+        contadorFPS.mostrarEnTitulo(ventana);
 
-        coverFlow.actualizar(deltaTime);
+        // Limitar tiempo solo para la animacion
+        float deltaAnimacion = std::min(deltaTime, 0.05f);
+        coverFlow.actualizar(deltaAnimacion);
 
+        // Procesar eventos
         SDL_Event evento;
 
-        while (SDL_PollEvent(&evento))
-        {
+        while (SDL_PollEvent(&evento)) {
 
-            if (evento.type == SDL_QUIT)
-            {
+            if (evento.type == SDL_QUIT) {
                 ejecutando = false;
             }
 
-            if (evento.type == SDL_KEYDOWN)
-            {
+            if (evento.type == SDL_KEYDOWN) {
 
-                switch (evento.key.keysym.sym)
-                {
+                switch (evento.key.keysym.sym) {
 
-                case SDLK_ESCAPE:
-                    ejecutando = false;
-                    break;
+                    case SDLK_ESCAPE:
+                        ejecutando = false;
+                        break;
 
-                case SDLK_LEFT:
-                    coverFlow.anterior();
-                    break;
+                    case SDLK_LEFT:
+                        coverFlow.anterior();
+                        break;
 
-                case SDLK_RIGHT:
-                    coverFlow.siguiente();
-                    break;
+                    case SDLK_RIGHT:
+                        coverFlow.siguiente();
+                        break;
                 }
             }
         }
 
-        // Limpiar pantalla
+        // 6. Dibujar
         SDL_SetRenderDrawColor(renderer, 16, 19, 24, 255);
         SDL_RenderClear(renderer);
 
-        // Dibujar nuestro modulo CoverFlow
         coverFlow.dibujar(renderer);
 
-        // Mostrar resultado
         SDL_RenderPresent(renderer);
+
+        // Pausa aproximada de 16 ms
         SDL_Delay(16);
     }
 
-    // Liberar recursos
+    // 7. Liberar recursos
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(ventana);
     SDL_Quit();
