@@ -1,0 +1,15 @@
+# Archivos de compilacion
+/build/
+/ladoa
+*.o
+*.so
+
+# Respaldos y temporales
+src/main_v01.cpp
+src/main_respaldo.cpp
+*~
+*.log
+
+# Configuracion de editores
+.vscode/
+.idea/
