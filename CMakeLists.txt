@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.16)
 
 project(LadoA_R36S VERSION 0.1.0 LANGUAGES CXX)
@@ -10,6 +11,7 @@ pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2)
 
 add_executable(ladoa
     src/main.cpp
+    src/ui/CoverFlow.cpp
 )
 
 target_link_libraries(ladoa PRIVATE PkgConfig::SDL2)
