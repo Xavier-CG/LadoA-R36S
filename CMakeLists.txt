@@ -13,6 +13,7 @@ add_executable(ladoa
     src/main.cpp
     src/ui/CoverFlow.cpp
     src/debug/FPSCounter.cpp
+     src/debug/PerformanceLogger.cpp
 )
 
 target_link_libraries(ladoa PRIVATE PkgConfig::SDL2)

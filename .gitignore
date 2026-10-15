@@ -13,3 +13,6 @@ src/main_respaldo.cpp
 # Configuracion de editores
 .vscode/
 .idea/
+
+# Registros de rendimiento
+/logs/
